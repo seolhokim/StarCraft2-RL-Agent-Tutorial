@@ -49,6 +49,9 @@
     ```
 
   * 를 입력해 실행되는지 확인합니다. 
+  * 로딩이 끝난 뒤, 다음과 같이 실행된다면 설치에 성공한 것입니다.
 
+![](.gitbook/assets/.png.png)
 
+* 다음 장에서는 Pysc2를 통해 python에서 starcraft2로 어떻게 명령을 전달하고, input data를 handling하는지 진행하겠습니다.
 
