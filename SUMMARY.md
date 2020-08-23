@@ -1,4 +1,4 @@
 # Table of contents
 
-* [Initial page](README.md)
+* [Startcraft2-RL-Agent-Tutorial](README.md)
 
