@@ -1,1 +1,2 @@
-# StartCraft2-RL-Agent-Tutorial
+# Initial page
+
