@@ -12,6 +12,12 @@
 * RL의 기본적인 update식 들을 이해한다면 충분합니다.
 * 최대한 자세히 설명하려고 노력하겠지만,\(사실 귀찮 하고 넘기는 성격이라\) 설명에 능하지 않은 만큼 issue를 남겨주시면 열심히 답해드리도록 노력하겠습니다.
 
+## 목차
+
+* Handling-Pysc2 
+* Solving-Mini-game 
+* Defeat-ai
+
 ## Requirements
 
 * windows 10 기준으로 쓰여졌습니다.
