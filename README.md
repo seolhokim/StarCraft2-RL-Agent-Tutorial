@@ -11,7 +11,7 @@
 * python을 통해 일반적인 Application을 다루는 강좌만큼의 프로그래밍 언어 능력이면 충분합니다.
 * pytorch의 training 구조를 이해하고 있다면 충분합니다.
 * RL의 기본적인 update식 들을 이해한다면 충분합니다.
-* 최대한 자세히 설명하려고 노력하겠지만,\(사실 귀찮하고 넘기는 성격이라\) 설명에 능하지 않은 만큼 issue를 남겨주시면 열심히 답해드리도록 노력하겠습니다.
+* 최대한 자세히 설명하려고 노력하겠지만,\(사실 귀찮아하고 넘기는 성격이라\) 설명에 능하지 않은 만큼 issue를 남겨주시면 열심히 답해드리도록 노력하겠습니다.
 
 ## 목차
 
@@ -28,7 +28,7 @@
   * 기본 path를 바꾸지 않는것을 추천드립니다.
   * 기본 path는 `C:\Program Files (x86)\StarCraft II`  입니다.
   * 실험에 사용할 Map을 받아야 하는데, [링크](https://github.com/deepmind/pysc2) 에서 Get the maps에서 **mini games** 를 누르시면 알집이 받아집니다.
-  * 다음으로 [링](https://github.com/Blizzard/s2client-proto#downloads)에서 Map Packs를 보시면 
+  * 다음으로 [링크](https://github.com/Blizzard/s2client-proto#downloads)에서 Map Packs를 보시면 
     * Ladder 2019 Season 3 
     * Melee
   * 를 받으신뒤 압축을 푸시면 됩니다. 비밀번호는**iagreetotheeula** 입니다.
