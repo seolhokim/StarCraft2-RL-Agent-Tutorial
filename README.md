@@ -1,6 +1,7 @@
 # Startcraft2-RL-Agent-Tutorial
 
 ![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/seolhokim/StartCraft2-RL-Agent-Tutorial)
+
 ## 목적
 
 이 gitbook은 windows 10 환경에서 python을 가지고, Starcraft2의 RL Agent를 만드는 튜토리얼을 진행하기 위해 만드는 튜토리얼 gitbook입니다.
@@ -16,7 +17,8 @@
 ## 목차
 
 * Handling-Pysc2 
-* Solving-Mini-game 
+* Solving-Mini-game
+* Advanced Handling-Pysc2 
 * Defeat-ai
 
 ## Requirements
@@ -43,13 +45,13 @@
   * starcraft2를 python환경을 제어하기 위한 python component입니다.  
   * repository를 보면 설치방법이 나와있습니다.
   * `pip install pysc2` 를 command에 입력해 설치를 합니다.
-  *  이제 모두 install이 잘 됐는지 확인하기 위해 
+  * 이제 모두 install이 잘 됐는지 확인하기 위해
 
     ```text
     python -m pysc2.bin.agent --map Simple64
     ```
 
-  * 를 입력해 실행되는지 확인합니다. 
+  * 를 입력해 실행되는지 확인합니다.
   * 로딩이 끝난 뒤, 다음과 같이 실행된다면 설치에 성공한 것입니다.
 
 ![](.gitbook/assets/.png.png)

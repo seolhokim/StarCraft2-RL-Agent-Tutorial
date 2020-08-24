@@ -4,12 +4,16 @@
 
 ## handling-pysc2
 
-* [Handling Pysc2](handling-pysc2/untitled-1.md)
+* [Welcome to pysc2](handling-pysc2/untitled-1.md)
 * [Untitled](handling-pysc2/untitled.md)
 
 ## Solve-Mini-Game
 
 * [Untitled](solve-mini-game/untitled.md)
+
+## Advenced-Handling-Pysc2
+
+* [Untitled](advenced-handling-pysc2/untitled.md)
 
 ## Defeat-AI
 
