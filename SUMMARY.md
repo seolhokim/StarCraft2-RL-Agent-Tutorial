@@ -5,7 +5,7 @@
 ## handling-pysc2
 
 * [Welcome to pysc2](handling-pysc2/untitled-1.md)
-* [Untitled](handling-pysc2/untitled.md)
+* [How to select your SCV!?](handling-pysc2/untitled.md)
 
 ## Solve-Mini-Game
 
