@@ -1,5 +1,6 @@
 # Startcraft2-RL-Agent-Tutorial
 
+![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/seolhokim/StartCraft2-RL-Agent-Tutorial)
 ## 목적
 
 이 gitbook은 windows 10 환경에서 python을 가지고, Starcraft2의 RL Agent를 만드는 튜토리얼을 진행하기 위해 만드는 튜토리얼 gitbook입니다.
