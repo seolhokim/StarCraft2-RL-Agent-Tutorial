@@ -66,9 +66,68 @@ class Agent(base_agent.BaseAgent):
             return actions.FUNCTIONS.no_op()
 ```
 
-이제는 agent를 골랐을 때, 아무것도 안하는게 아닌, SCV를 선택된 적 starting point로  정찰을 보내고, 빙빙돌려야합니다. 그렇게 하기 위해선 SCV가 공격받고 있는지, 가만히 있는지들을 확인하는 function을 만들어야 합니다.
+이제는 agent를 골랐을 때, 아무것도 안하는게 아닌, SCV를 선택된 적 starting point로  정찰을 보내고, 빙빙돌려야합니다. 그렇게 하기 위해선,
+
+1. SCV 한 기를 클릭\(위에서진행\)
+2. SCV를 부대지정
+3. SCV를 카메라로 따라다니며 체력확인 및 컨트롤
+   * 카메라로 따라다니지않고 observation의 single\_select의 healty entity를 이용할 수도 있지만, 그러면 컨트롤하기 어려우므로 카메라를 따라가도록 하겠습니다.
+4. 마
+
+아래처럼 부대지정이 1번이 되어있지않는 경우에 아래처럼 그룹지정을 합니다.
 
 ```python
-
+CONTROL_GROUP_SET = 1
+CONTROL_GROUP_RECALL = 0
+SCV_GROUP_ORDER = 1
+def step(self,obs):
+    super(Agent,self).step(obs)
+    scvs = [unit for unit in obs.observation.feature_units if unit.unit_type == units.Terran.SCV]
+        
+    if len(scvs) > 0 and not self.unit_type_is_selected(obs,units.Terran.SCV):
+        scv = scvs[0]
+        return actions.FUNCTIONS.select_point("select",(scv.x,scv.y))
+    elif self.unit_type_is_selected(obs,units.Terran.SCV) and obs.observation.control_groups[SCV_GROUP_ORDER][0] == 0:
+        return actions.FUNCTIONS.select_control_group([CONTROL_GROUP_SET], [SCV_GROUP_ORDER])
+    else :
+        return actions.FUNCTIONS.no_op()
 ```
+
+다음은, 카메라를 따라다니도록 해야하는데, 여기서 편법\(?\)을 사용할 예정입니다. FUNCTIONS에 camera move가 있긴하지만 미니맵을 쪼개서 사용하는 방식으로 사용하여, 부대지정한 유닛으로 이동하는게 까다롭습니다. 그렇기때문에 pynput 을 이용하겠습니다.
+
+```python
+import pynput
+keyboard_button = pynput.keyboard.Controller()
+keyboard_key = pynput.keyboard.Key
+CONTROL_GROUP_SET = 1
+CONTROL_GROUP_RECALL = 0
+SCV_GROUP_ORDER = 1
+NOT_QUEUED = [0]
+MOVE_SCREEN = 331
+
+def step(self,obs):
+    super(Agent,self).step(obs)
+    scvs = [unit for unit in obs.observation.feature_units if unit.unit_type == units.Terran.SCV]
+        
+    if len(scvs) > 0 and not self.unit_type_is_selected(obs,units.Terran.SCV):
+        scv = scvs[0]
+        return actions.FUNCTIONS.select_point("select",(scv.x,scv.y))
+    elif self.unit_type_is_selected(obs,units.Terran.SCV) and obs.observation.control_groups[SCV_GROUP_ORDER][0] == 0:
+        return actions.FUNCTIONS.select_control_group([CONTROL_GROUP_SET], [SCV_GROUP_ORDER])
+    elif len([x for x in obs.observation.feature_units if x.is_selected == 1]) == 0:
+        keyboard_button.press(str(SCV_GROUP_ORDER))
+        keyboard_button.release(str(SCV_GROUP_ORDER))
+        keyboard_button.press(str(SCV_GROUP_ORDER))
+        keyboard_button.release(str(SCV_GROUP_ORDER))
+        return actions.FUNCTIONS.select_control_group([CONTROL_GROUP_RECALL], [SCV_GROUP_ORDER])
+    elif len([x for x in obs.observation.feature_units if ((x.is_selected == 1) and x.order_length == 0)]) == 1 :
+        x,y = random.randint(0,64),random.randint(0,64)
+        return actions.FunctionCall(MOVE_SCREEN,[NOT_QUEUED,[x,y]])
+    else:
+        return actions.FUNCTIONS.no_op()
+```
+
+부대지정한 유닛이 맵에서 사라지면 SCV부대지정 키를 눌러 그곳으로 camera를 이동하고, SCV가 아무것도안하면 random으로 이동시켜 뺑뺑 돌게 만드는 스크립트입니다.
+
+
 
