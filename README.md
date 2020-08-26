@@ -1,4 +1,4 @@
-# Startcraft2-RL-Agent-Tutorial
+# Starcraft2-RL-Agent-Tutorial
 
 ![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://github.com/seolhokim/StartCraft2-RL-Agent-Tutorial)
 

@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Startcraft2-RL-Agent-Tutorial](README.md)
+* [Starcraft2-RL-Agent-Tutorial](README.md)
 
 ## handling-pysc2
 
