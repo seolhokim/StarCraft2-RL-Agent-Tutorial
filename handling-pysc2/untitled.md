@@ -2,7 +2,7 @@
 
 ## 이 장에서 배울 것
 
-SCV를 선택하고, 상대방의 진영으로 SCV를 정찰보내고 빙빙 돌리다가 마패를 박는\(상대방이 보이는 곳에 커맨드센터를 지음으로써 굴욕을 주는\) 행위를 해볼 것입니다.
+SCV를 선택하고, 상대방의 진영으로 SCV를 정찰보내고 빙빙 돌리행위를 해볼 것입니다.
 
 ## ㅇ
 
@@ -70,9 +70,7 @@ class Agent(base_agent.BaseAgent):
 
 1. SCV 한 기를 클릭\(위에서진행\)
 2. SCV를 부대지정
-3. SCV를 카메라로 따라다니며 체력확인 및 컨트롤
-   * 카메라로 따라다니지않고 observation의 single\_select의 healty entity를 이용할 수도 있지만, 그러면 컨트롤하기 어려우므로 카메라를 따라가도록 하겠습니다.
-4. 마
+3. SCV를 카메라로 따라다니며 및 컨트롤
 
 아래처럼 부대지정이 1번이 되어있지않는 경우에 아래처럼 그룹지정을 합니다.
 
@@ -129,7 +127,169 @@ def step(self,obs):
 
 부대지정한 유닛이 맵에서 사라지면 SCV부대지정 키를 눌러 그곳으로 camera를 이동하고, SCV가 아무것도안하면 random으로 이동시켜 뺑뺑 돌게 만드는 스크립트입니다.
 
-\#프로토스로 바꿔 짓게하기. 유닛생산, 공
+적의 본진으로 정찰을 보내야하는데, 시작전에 자신의 본진이 어느 방향일지 알 수 없습니다. 그러므로, step내에 다음과 같은 라인을 추가합니다.
+
+```python
+if obs.first(): 
+    player_y, player_x = (obs.observation.feature_minimap.player_relative == PLAYER_SELF).nonzero()
+    xmean = player_x.mean()
+    ymean = player_y.mean()
+    if xmean <= 31 and ymean <= 31:
+        self.scout_coordinates = (40, 40)
+    else:
+        self.scout_coordinates = (20, 20)
+```
+
+step function의 전체를 정리하면 다음과 같습니다.
+
+```python
+    def step(self,obs):
+        super(Agent,self).step(obs)
+        if obs.first(): 
+            player_y, player_x = (obs.observation.feature_minimap.player_relative == PLAYER_SELF).nonzero()
+            xmean = player_x.mean()
+            ymean = player_y.mean()
+            if xmean <= 31 and ymean <= 31:
+                self.scout_coordinates = (40, 40)
+            else:
+                self.scout_coordinates = (20, 20)
+                
+        scvs = [unit for unit in obs.observation.feature_units if unit.unit_type == units.Terran.SCV]
+        if len(scvs) > 0 and not self.unit_type_is_selected(obs,units.Terran.SCV):
+            #유닛 셀렉
+            scv = scvs[0]
+            return actions.FUNCTIONS.select_point("select",(scv.x,scv.y))
+        elif self.unit_type_is_selected(obs,units.Terran.SCV) and obs.observation.control_groups[SCV_GROUP_ORDER][0] == 0:
+            #control unit잡기
+            return actions.FUNCTIONS.select_control_group([CONTROL_GROUP_SET], [SCV_GROUP_ORDER])
+        elif len([x for x in obs.observation.feature_units if x.is_selected == 1]) == 0:
+            #화면밖벗어났을때
+            keyboard_button.press(str(SCV_GROUP_ORDER))
+            keyboard_button.release(str(SCV_GROUP_ORDER))
+            keyboard_button.press(str(SCV_GROUP_ORDER))
+            keyboard_button.release(str(SCV_GROUP_ORDER))
+            return actions.FUNCTIONS.select_control_group([CONTROL_GROUP_RECALL], [SCV_GROUP_ORDER])
+        elif len([x for x in obs.observation.feature_units if ((x.is_selected == 1) and x.order_length == 0)]) == 1 and\
+              SCREEN_ENEMY in [x.alliance for x in obs.observation.feature_units] :
+            #화면내 random 이동
+            x,y = random.randint(0,64),random.randint(0,64)
+            return actions.FunctionCall(MOVE_SCREEN,[NOT_QUEUED,[x,y]])
+        elif len([x for x in obs.observation.feature_units if (x.is_selected == 1)]) == 1 \
+            and SCREEN_ENEMY not in [x.alliance for x in obs.observation.feature_units]:
+            #적 위치로 정찰
+            x,y = self.scout_coordinates
+            return actions.FunctionCall(MOVE_MINIMAP,[NOT_QUEUED,[x,y]])
+        else:
+            return actions.FUNCTIONS.no_op()
+
+```
+
+전체의 스크립트는 다음과 같습니다.
+
+```python
+from pysc2.env import sc2_env
+from pysc2.agents import base_agent
+from pysc2.lib import actions,units,features 
+
+from absl import app
+
+import random
+import pynput ###
+keyboard_button = pynput.keyboard.Controller()
+keyboard_key = pynput.keyboard.Key
 
 
+MAPNAME = 'Simple64'
+APM = 300
+APM = int(APM / 18.75)
+UNLIMIT = 0
+VISUALIZE = True
+REALTIME = True
+CONTROL_GROUP_SET = 1
+CONTROL_GROUP_RECALL = 0
+SCV_GROUP_ORDER = 1
+NOT_QUEUED = [0]
+MOVE_SCREEN = 331
+MOVE_MINIMAP = 332
+SCREEN_ENEMY = 4
+PLAYER_SELF =features.PlayerRelative.SELF
+
+players = [sc2_env.Agent(sc2_env.Race.terran),\
+           sc2_env.Bot(sc2_env.Race.zerg,\
+           sc2_env.Difficulty.very_easy)]
+
+interface = features.AgentInterfaceFormat(\
+                feature_dimensions = features.Dimensions(\
+                screen = 84, minimap = 64), use_feature_units = True)
+
+class Agent(base_agent.BaseAgent):
+    def unit_type_is_selected(self,obs,unit_type):
+        if (len(obs.observation.single_select) > 0 and obs.observation.single_select[0].unit_type == unit_type):
+            return True
+        elif (len(obs.observation.multi_select) > 0 and obs.observation.multi_select[0].unit_type == unit_type):
+            return True
+        else :
+            return False
+    def step(self,obs):
+        super(Agent,self).step(obs)
+        if obs.first(): 
+            player_y, player_x = (obs.observation.feature_minimap.player_relative == PLAYER_SELF).nonzero()
+            xmean = player_x.mean()
+            ymean = player_y.mean()
+            if xmean <= 31 and ymean <= 31:
+                self.scout_coordinates = (40, 40)
+            else:
+                self.scout_coordinates = (20, 20)
+                
+        scvs = [unit for unit in obs.observation.feature_units if unit.unit_type == units.Terran.SCV]
+        if len(scvs) > 0 and not self.unit_type_is_selected(obs,units.Terran.SCV):
+            #유닛 셀렉
+            scv = scvs[0]
+            return actions.FUNCTIONS.select_point("select",(scv.x,scv.y))
+        elif self.unit_type_is_selected(obs,units.Terran.SCV) and obs.observation.control_groups[SCV_GROUP_ORDER][0] == 0:
+            #control unit잡기
+            return actions.FUNCTIONS.select_control_group([CONTROL_GROUP_SET], [SCV_GROUP_ORDER])
+        elif len([x for x in obs.observation.feature_units if x.is_selected == 1]) == 0:
+            #화면밖벗어났을때
+            keyboard_button.press(str(SCV_GROUP_ORDER))
+            keyboard_button.release(str(SCV_GROUP_ORDER))
+            keyboard_button.press(str(SCV_GROUP_ORDER))
+            keyboard_button.release(str(SCV_GROUP_ORDER))
+            return actions.FUNCTIONS.select_control_group([CONTROL_GROUP_RECALL], [SCV_GROUP_ORDER])
+        elif len([x for x in obs.observation.feature_units if ((x.is_selected == 1) and x.order_length == 0)]) == 1 and\
+              SCREEN_ENEMY in [x.alliance for x in obs.observation.feature_units] :
+            #화면내 random 이동
+            x,y = random.randint(0,64),random.randint(0,64)
+            return actions.FunctionCall(MOVE_SCREEN,[NOT_QUEUED,[x,y]])
+        elif len([x for x in obs.observation.feature_units if (x.is_selected == 1)]) == 1 \
+            and SCREEN_ENEMY not in [x.alliance for x in obs.observation.feature_units]:
+            #적 위치로 정찰
+            x,y = self.scout_coordinates
+            return actions.FunctionCall(MOVE_MINIMAP,[NOT_QUEUED,[x,y]])
+        else:
+            return actions.FUNCTIONS.no_op()
+
+
+
+def main(args):
+    agent = Agent()
+    try:
+        with sc2_env.SC2Env(map_name = MAPNAME, players = players,\
+                agent_interface_format = interface,\
+                step_mul = APM, game_steps_per_episode = UNLIMIT,\
+                visualize = VISUALIZE, realtime = REALTIME) as env:
+            agent.setup(env.observation_spec(), env.action_spec())
+
+            timestep = env.reset()
+            agent.reset()
+
+            while True:
+                step_actions = [agent.step(timestep[0])]
+                if timestep[0].last():
+                    break
+                timestep = env.step(step_actions)
+    except KeyboardInterrupt:
+        pass
+app.run(main)
+```
 
