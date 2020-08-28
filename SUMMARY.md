@@ -4,9 +4,16 @@
 
 ## handling-pysc2
 
-* [Welcome to pysc2](handling-pysc2/untitled-1.md)
-* [How to select your SCV!?](handling-pysc2/untitled.md)
-* [Build Marine! and Attack!](handling-pysc2/build-marine-and-attack.md)
+* [Basic about pysc2](handling-pysc2/basic-about-pysc2/README.md)
+  * [Welcome to pysc2](handling-pysc2/basic-about-pysc2/asd.md)
+  * [How to select your SCV!?](handling-pysc2/basic-about-pysc2/untitled.md)
+  * [Build Marine! and Attack!](handling-pysc2/basic-about-pysc2/build-marine-and-attack.md)
+
+---
+
+* [Mini-Game environment](mini-game-environment/README.md)
+  * [CollectMineralShards](mini-game-environment/collectmineralshards.md)
+  * [DefeatZerglingsAndBanelings](mini-game-environment/defeatzerglingsandbanelings.md)
 
 ## Solve-Mini-Game
 
@@ -14,9 +21,8 @@
 
 ## Advenced-Handling-Pysc2
 
-* [Untitled](advenced-handling-pysc2/untitled.md)
-
 ## Defeat-AI
 
-* [Untitled](defeat-ai/untitled.md)
+* [Untitled](defeat-ai/untitled/README.md)
+  * [Untitled](defeat-ai/untitled/untitled.md)
 
