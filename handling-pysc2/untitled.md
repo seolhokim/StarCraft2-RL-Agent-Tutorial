@@ -2,9 +2,9 @@
 
 ## 이 장에서 배울 것
 
-SCV를 선택하고, 상대방의 진영으로 SCV를 정찰보내고 빙빙 돌리행위를 해볼 것입니다.
+SCV를 선택하고, 상대방의 진영으로 SCV를 정찰보내고 빙빙 돌리는 행위를 해볼 것입니다.
 
-## ㅇ
+## Let's Start!
 
 시작해보겠습니다. 일단 지난번의 agent는 no\_op\(\)을 통해 아무 action없이 대기하는 agent를 만들었습니다. 이번엔 어떻게 처리해야 SCV를 선택하고, 상대방 진영에 보내고, 자원이 될 때, 커맨드 센터를 지을 수 있을까요?
 
@@ -149,7 +149,7 @@ step function의 전체를 정리하면 다음과 같습니다.
             player_y, player_x = (obs.observation.feature_minimap.player_relative == PLAYER_SELF).nonzero()
             xmean = player_x.mean()
             ymean = player_y.mean()
-            if xmean <= 31 and ymean <= 31:
+            if xmean <= MINIMAP_SIZE / 2 and ymean <= MINIMAP_SIZE / 2:
                 self.scout_coordinates = (40, 40)
             else:
                 self.scout_coordinates = (20, 20)
@@ -172,7 +172,7 @@ step function의 전체를 정리하면 다음과 같습니다.
         elif len([x for x in obs.observation.feature_units if ((x.is_selected == 1) and x.order_length == 0)]) == 1 and\
               SCREEN_ENEMY in [x.alliance for x in obs.observation.feature_units] :
             #화면내 random 이동
-            x,y = random.randint(0,64),random.randint(0,64)
+            x,y = random.randint(0,SCREEN_SIZE),random.randint(0,SCREEN_SIZE)
             return actions.FunctionCall(MOVE_SCREEN,[NOT_QUEUED,[x,y]])
         elif len([x for x in obs.observation.feature_units if (x.is_selected == 1)]) == 1 \
             and SCREEN_ENEMY not in [x.alliance for x in obs.observation.feature_units]:
@@ -214,13 +214,16 @@ MOVE_MINIMAP = 332
 SCREEN_ENEMY = 4
 PLAYER_SELF =features.PlayerRelative.SELF
 
+SCREEN_SIZE = 84
+MINIMAP_SIZE = 64
+
 players = [sc2_env.Agent(sc2_env.Race.terran),\
            sc2_env.Bot(sc2_env.Race.zerg,\
            sc2_env.Difficulty.very_easy)]
 
 interface = features.AgentInterfaceFormat(\
                 feature_dimensions = features.Dimensions(\
-                screen = 84, minimap = 64), use_feature_units = True)
+                screen = SCREEN_SIZE, minimap = MINIMAP_SIZE), use_feature_units = True)
 
 class Agent(base_agent.BaseAgent):
     def unit_type_is_selected(self,obs,unit_type):
@@ -236,7 +239,7 @@ class Agent(base_agent.BaseAgent):
             player_y, player_x = (obs.observation.feature_minimap.player_relative == PLAYER_SELF).nonzero()
             xmean = player_x.mean()
             ymean = player_y.mean()
-            if xmean <= 31 and ymean <= 31:
+            if xmean <= MINIMAP_SIZE / 2 and ymean <= MINIMAP_SIZE / 2:
                 self.scout_coordinates = (40, 40)
             else:
                 self.scout_coordinates = (20, 20)
@@ -259,7 +262,7 @@ class Agent(base_agent.BaseAgent):
         elif len([x for x in obs.observation.feature_units if ((x.is_selected == 1) and x.order_length == 0)]) == 1 and\
               SCREEN_ENEMY in [x.alliance for x in obs.observation.feature_units] :
             #화면내 random 이동
-            x,y = random.randint(0,64),random.randint(0,64)
+            x,y = random.randint(0,SCREEN_SIZE),random.randint(0,SCREEN_SIZE)
             return actions.FunctionCall(MOVE_SCREEN,[NOT_QUEUED,[x,y]])
         elif len([x for x in obs.observation.feature_units if (x.is_selected == 1)]) == 1 \
             and SCREEN_ENEMY not in [x.alliance for x in obs.observation.feature_units]:
@@ -268,8 +271,6 @@ class Agent(base_agent.BaseAgent):
             return actions.FunctionCall(MOVE_MINIMAP,[NOT_QUEUED,[x,y]])
         else:
             return actions.FUNCTIONS.no_op()
-
-
 
 def main(args):
     agent = Agent()
