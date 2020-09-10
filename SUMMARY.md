@@ -17,7 +17,9 @@
 
 ## Solve-Mini-Game
 
-* [CollectMineralShards](solve-mini-game/untitled.md)
+* [Mini-Game](solve-mini-game/mini-game/README.md)
+  * [CollectMineralShards](solve-mini-game/mini-game/untitled.md)
+  * [CollectMineralShards backup](solve-mini-game/mini-game/collectmineralshards-backup.md)
 
 ## Advenced-Handling-Pysc2
 
